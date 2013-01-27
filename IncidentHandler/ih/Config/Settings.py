@@ -100,7 +100,15 @@ class IncidentConfig(object):
             except ConfigParser.NoSectionError:
                 logging.warn("User %s config section was incomplete...ignoring" % (userIterator,))
             userIterator += 1
-        pprint.pprint(self._Users)
+
+    def __str__(self):
+        pprint.pprint({ "AccountSID"   : self._AccountSID,
+                        "AuthToken"    : self._AuthToken,
+                        "TwilioNumber" : self._TwilioNumber,
+                        "Users"        : self._Users})
+
+    def Users():
+        return self._Users
 
     def trueFalseResponse(self, query, default=None):
         rawIn = raw_input(query)
@@ -114,7 +122,3 @@ class IncidentConfig(object):
             return True
         else:
             return False
-
-if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
-    ic = IncidentConfig()
