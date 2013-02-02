@@ -18,14 +18,14 @@ class IncidentHandler(Resource):
         self._Sched = Scheduler()
         self._Sched.start()
 
-        self._notifcationState = {}
+        self._notificationState = {}
 
         self._beginNotifications()
 
     def _beginNotifications(self):
         logging.info("Beginning notification process")
         if self._incidentDetails["SMS"].lower() == "true":
-            self._notifcationState["SMS"] = {}
+            self._notificationState["SMS"] = {}
             self._sendSMS()
         if self._incidentDetails["Call"].lower() == "true" and self._incidentDetails["SMS"].lower() == "true" :
             self._notificationState["Call"] = {}
@@ -40,11 +40,11 @@ class IncidentHandler(Resource):
         smsMessage = self._incidentDetails["Message"] + "\nPlease respond with the PIN: %s to accept this ticket" % str(self._smsPin)
         logging.info("SMS Pin is set to %s" % str(self._smsPin))
         self._incidentDetails["SMS_Pin"] = self._smsPin
-        for user in self._config.Users:
+        for user in self._config._Users:
             if user["SMS"] == "True":
                 logging.info("User '%s' is set to recieve SMS messages...Sending..." % user["Name"])
-                res = self._tc.sendMessage(from_=self._config.TwilioNumber(), 
-                                           to=user["Phone"], 
+                res = self._tc.sendMessage(src=self._config._TwilioNumber, 
+                                           dst=user["Phone"], 
                                            body=smsMessage)
             else:
                 logging.info("User '%s' is not set to recieve SMS messages...Skipping..." % user["Name"])
@@ -53,8 +53,8 @@ class IncidentHandler(Resource):
         logging.info("Incident is set to send SMS messages, generating an ID for text message response")
         self._callPin = self.generate_pins(4, 1)
         logging.info("Call Pin is set to %s" % str(self._smsPin))
-#        responseArray = [{ "Say" : "New Incident"},
-#                         { "Say" : self._incidentDetails["Message"]},
+        responseArray = [{ "Say" : "New Incident"},
+                         { "Say" : self._incidentDetails["Message"]}]
 #                         { "Gather" : { "say"         : "Please key the following digits to accept the task " + str(self._callPin),
 #                                        "action"      : "http://host:port/IncidentHandler/Id/CallPinCheck",
 #                                        "method"      : "GET",
@@ -62,10 +62,10 @@ class IncidentHandler(Resource):
 #                         { "Say" : "You entered no digits. Goodbye!" }]
 #        responseArray = rp(responseArray)
         responseArray = rp(["Temp"])
-        for user in self._config.Users:
+        for user in self._config._Users:
             if user["Call"] == "True":
                 logging.info("User '%s' is set to recieve calls...Sending..." % user["Name"])
-                res = self._tc.sendCall(from_=self._config.TwilioNumber(), 
+                res = self._tc.sendCall(from_=self._config._TwilioNumber, 
                                         to=user["Phone"], 
                                         url="http://host:port/IncidentHandler/Id/CallResponse")
             else:

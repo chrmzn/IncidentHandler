@@ -31,7 +31,7 @@ class IncidentConfig(object):
         self._AuthToken = token
 
         print "Enter in your Twilio Phone Number"
-        token = raw_input('---> ')
+        twn = raw_input('---> ')
         config.set("Twilio", "TwilioNumber", twn)
         self._TwilioNumber = twn
 
