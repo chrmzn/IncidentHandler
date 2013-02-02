@@ -1,4 +1,6 @@
 import json
+import logging
+import uuid
 
 from ih.Handlers.IncidentHandler import IncidentHandler
 from twisted.web.resource import Resource
@@ -16,6 +18,10 @@ class IncidentManager(Resource):
             logging.info("Found incident details for %s", path)
             resp = self._callDetails[path]["Response"]
             return IncidentHandler(resp)
+        elif path == "IncomingCall":
+            return "Handle a call"
+        elif path == "IncomingSMS":
+            return "Handle an sms"
         else:
             request.setHeader("Content-Type", "application/json")
             return json.dumps({ "Error" : "Missing key from posted incident message!" })
@@ -34,10 +40,10 @@ class IncidentManager(Resource):
             incidentId = str(uuid.uuid4())
             hostname = "ec2-54-246-10-74.eu-west-1.compute.amazonaws.com"
             #respUrl = "http://" + request.getHeader('host') + request.uri + "/" + callId
-            respUrl = "http://" + hostname + ":8880" + request.uri + "/" + callId
+            respUrl = "http://" + hostname + ":8880" + request.uri + "/" + incidentId
             self._incidentList[callId] = IncidentHandler(data, incidentId, self._tc, self._config)  
             return json.dumps({ "Status" : "Success", "Id" : incidentId})
         except ValueError:
             return json.dumps({ "Status" : "Failed", "Error" : "Could not parse JSON" })
-        except:
-            return json.dumps({ "Status" : "Failed", "Error" : "Unknown Error..." })
+        #except:
+        #    return json.dumps({ "Status" : "Failed", "Error" : "Unknown Error..." })
